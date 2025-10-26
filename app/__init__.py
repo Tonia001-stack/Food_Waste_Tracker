@@ -1,15 +1,24 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from config import Config
+from config import Config, ProductionConfig, DevelopmentConfig
+import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 login_manager.login_view = 'auth.login'
 
-def create_app(config_class=Config):
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config_class)
+    
+    # Auto-detect environment and use appropriate config
+    env = os.environ.get('FLASK_ENV', 'development')
+    if env == 'production':
+        app.config.from_object(ProductionConfig)
+        print("🚀 Using PRODUCTION configuration")
+    else:
+        app.config.from_object(DevelopmentConfig) 
+        print("🔧 Using DEVELOPMENT configuration")
     
     # Initialize extensions
     db.init_app(app)
@@ -25,4 +34,4 @@ def create_app(config_class=Config):
     return app
 
 # Import models here to avoid circular imports
-from app.models import User, FoodItem, Donation, Achievement  # Removed FoodCategory
+from app.models import User, FoodItem, Donation, Achievement
