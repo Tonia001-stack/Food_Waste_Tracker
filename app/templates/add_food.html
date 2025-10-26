@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}Add Food Item - FoodSave{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-custom fade-in">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">➕ Add New Food Item</h4>
+                <small class="opacity-75">Track your food and reduce waste</small>
+            </div>
+            <div class="card-body">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('food.add_food') }}" id="add-food-form" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- CSRF Token Protection -->
+                    {% if csrf_token %}
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    {% endif %}
+                    
+                    <!-- Food Name -->
+                    <div class="mb-3">
+                        <label for="name" class="form-label fw-bold">
+                            🍎 Food Item Name
+                        </label>
+                        {{ form.name(class="form-control form-control-lg", placeholder="e.g., Apples, Milk, Bread", required=true) }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.name.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Enter the name of the food item</div>
+                    </div>
+
+                    <!-- Category and Quantity Row -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label fw-bold">
+                                📁 Category
+                            </label>
+                            {{ form.category(class="form-select form-select-lg", required=true) }}
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.category.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="quantity" class="form-label fw-bold">
+                                ⚖️ Quantity
+                            </label>
+                            {{ form.quantity(class="form-control form-control-lg", placeholder="e.g., 500g, 2 pieces, 1L", required=true) }}
+                            {% if form.quantity.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.quantity.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Specify amount and unit</div>
+                        </div>
+                    </div>
+
+                    <!-- Date Row -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="purchase_date" class="form-label fw-bold">
+                                🛒 Purchase Date
+                            </label>
+                            {{ form.purchase_date(class="form-control form-control-lg", type="date") }}
+                            {% if form.purchase_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.purchase_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">When you bought this item</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="expiry_date" class="form-label fw-bold">
+                                ⏰ Expiry Date
+                            </label>
+                            {{ form.expiry_date(class="form-control form-control-lg", type="date", required=true) }}
+                            {% if form.expiry_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.expiry_date.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text text-danger">Required field - check packaging</div>
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-4">
+                        <label for="notes" class="form-label fw-bold">
+                            📝 Additional Notes (Optional)
+                        </label>
+                        {{ form.notes(class="form-control", rows="3", placeholder="Any additional information about this food item...") }}
+                        {% if form.notes.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.notes.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Storage instructions, brand, or special handling notes</div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg py-3" id="submit-btn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            ✅ Add Food Item
+                        </button>
+                        <a href="{{ url_for('food.dashboard') }}" class="btn btn-outline-secondary">
+                            ← Back to Dashboard
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Help Card -->
+        <div class="card mt-4 fade-in">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">💡 Tips for Better Food Management</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">✅ <strong>Be specific</strong> with quantities for accurate tracking</li>
+                    <li class="mb-2">✅ <strong>Check expiry dates</strong> when purchasing</li>
+                    <li class="mb-2">✅ <strong>Store properly</strong> to extend shelf life</li>
+                    <li class="mb-2">✅ <strong>Plan meals</strong> around expiring items</li>
+                    <li>✅ <strong>Donate surplus</strong> food before it expires</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('add-food-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const spinner = submitBtn.querySelector('.spinner-border');
+    
+    // Form submission handler
+    form.addEventListener('submit', function() {
+        // Show loading spinner
+        spinner.classList.remove('d-none');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+    });
+    
+    // Set today as default for purchase date if empty
+    const purchaseDateField = document.getElementById('purchase_date');
+    if (!purchaseDateField.value) {
+        const today = new Date().toISOString().split('T')[0];
+        purchaseDateField.value = today;
+    }
+    
+    // Set default expiry date (3 days from today)
+    const expiryDateField = document.getElementById('expiry_date');
+    if (!expiryDateField.value) {
+        const futureDate = new Date();
+        futureDate.setDate(futureDate.getDate() + 3);
+        expiryDateField.value = futureDate.toISOString().split('T')[0];
+    }
+    
+    // Validate expiry date is after purchase date
+    function validateDates() {
+        const purchaseDate = new Date(purchaseDateField.value);
+        const expiryDate = new Date(expiryDateField.value);
+        
+        if (expiryDate <= purchaseDate) {
+            expiryDateField.setCustomValidity('Expiry date must be after purchase date');
+        } else {
+            expiryDateField.setCustomValidity('');
+        }
+    }
+    
+    purchaseDateField.addEventListener('change', validateDates);
+    expiryDateField.addEventListener('change', validateDates);
+});
+</script>
+{% endblock %}

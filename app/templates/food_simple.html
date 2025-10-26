@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Food Inventory - FoodSave{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">🍎 Food Inventory</h1>
+        
+        <!-- Quick Stats -->
+        <div class="row mb-4">
+            <div class="col-md-2">
+                <div class="card text-white bg-success">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">{{ stats.total_items }}</h4>
+                        <p class="card-text">Total Items</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card text-white bg-warning">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">{{ stats.expiring_soon_count }}</h4>
+                        <p class="card-text">Expiring Soon</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card text-white bg-danger">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">{{ stats.expired_count }}</h4>
+                        <p class="card-text">Expired</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card text-white bg-info">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">{{ stats.consumed_count }}</h4>
+                        <p class="card-text">Consumed</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <div class="card text-white bg-secondary">
+                    <div class="card-body text-center">
+                        <h4 class="card-title">{{ stats.wasted_count }}</h4>
+                        <p class="card-text">Wasted</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Food Items Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Your Food Items</h5>
+                <a href="{{ url_for('food.add_food') }}" class="btn btn-success btn-sm">
+                    ➕ Add Food Item
+                </a>
+            </div>
+            <div class="card-body">
+                {% if expiring_soon %}
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Items Expiring Soon (within 3 days):</strong>
+                        <ul class="mb-0 mt-2">
+                            {% for item in expiring_soon %}
+                                <li>{{ item.name }} - Expires in {{ item.days_until_expiry() }} days</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Quantity</th>
+                                <th>Expiry Date</th>
+                                <th>Status</th>
+                                <th>Days Left</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in stats.food_items %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.category }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.expiry_date.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if item.current_status == 'fresh' %}bg-success
+                                        {% elif item.current_status == 'expiring_soon' %}bg-warning
+                                        {% elif item.current_status == 'expired' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ item.current_status }}
+                                    </span>
+                                </td>
+                                <td>{{ item.days_until_expiry() }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

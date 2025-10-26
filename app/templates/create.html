@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Create Donation - FoodSave{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-custom fade-in">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">❤️ Create Food Donation</h4>
+                <small>Share surplus food with your community</small>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    <!-- Food Item Selection -->
+                    <div class="mb-3">
+                        <label for="food_item_id" class="form-label fw-bold">
+                            🍎 Select Food Item to Donate
+                        </label>
+                        <select class="form-select form-select-lg" id="food_item_id" name="food_item_id" required>
+                            <option value="">Choose a food item to donate...</option>
+                            {% for item in food_items %}
+                            <option value="{{ item.id }}">
+                                {{ item.name }} ({{ item.quantity }}) - {{ item.category.value }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">
+                            Choose from your available food items that are not expired
+                        </div>
+                    </div>
+
+                    <!-- Quantity Available -->
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label fw-bold">
+                            ⚖️ Quantity Available for Donation
+                        </label>
+                        <input type="text" class="form-control form-control-lg" id="quantity" name="quantity" 
+                               placeholder="e.g., 2 pieces, 500g, 1 package">
+                        <div class="form-text">
+                            Specify how much of this item you're donating (leave empty to use original quantity)
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-3">
+                        <label for="description" class="form-label fw-bold">
+                            📝 Donation Description
+                        </label>
+                        <textarea class="form-control" id="description" name="description" rows="3" 
+                                  placeholder="Describe the condition of the food, any special handling instructions, etc."></textarea>
+                    </div>
+
+                    <!-- Pickup Location -->
+                    <div class="mb-4">
+                        <label for="pickup_location" class="form-label fw-bold">
+                            📍 Pickup Location
+                        </label>
+                        <input type="text" class="form-control form-control-lg" id="pickup_location" name="pickup_location" 
+                               placeholder="Where can someone pick up this donation?" required>
+                        <div class="form-text">
+                            Provide clear instructions for pickup (address, building, contact info)
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg py-3">Create Donation</button>
+                        <a href="{{ url_for('donations.list_donations') }}" class="btn btn-outline-secondary">
+                            ← Back to Donations
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Donation Guidelines Card -->
+        <div class="card mt-4 fade-in">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">📋 Donation Guidelines</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">✅ <strong>Fresh food only</strong> - no expired items</li>
+                    <li class="mb-2">✅ <strong>Proper packaging</strong> - ensure food is safely packaged</li>
+                    <li class="mb-2">✅ <strong>Clear pickup instructions</strong> - make it easy for claimants</li>
+                    <li class="mb-2">✅ <strong>Respond promptly</strong> - to claimant messages</li>
+                    <li>✅ <strong>Mark as delivered</strong> - once the donation is complete</li>
+                </ul>
+                <div class="alert alert-warning mt-3">
+                    <strong>⚠️ Important:</strong> Only donate food that you would consume yourself. 
+                    Ensure proper food safety practices.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

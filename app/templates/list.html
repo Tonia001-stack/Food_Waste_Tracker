@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Available Donations - FoodSave{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Available Food Donations</h1>
+                    <a href="{{ url_for('donations.create_donation') }}" class="btn btn-success">
+                        Create Donation
+                    </a>
+                </div>
+
+                <!-- Search and Filter Bar -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Search donations...">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="categoryFilter">
+                            <option value="">All Categories</option>
+                            <option value="fruits">Fruits</option>
+                            <option value="vegetables">Vegetables</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="meat">Meat</option>
+                            <option value="grains">Grains</option>
+                            <option value="beverages">Beverages</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="statusFilter">
+                            <option value="">All Status</option>
+                            <option value="available">Available</option>
+                            <option value="claimed">Claimed</option>
+                            <option value="delivered">Delivered</option>
+                        </select>
+                    </div>
+                </div>
+                
+                {% if donations.items %}
+                    <div class="row" id="donationsContainer">
+                        {% for donation in donations.items %}
+                        <div class="col-md-6 col-lg-4 mb-4 donation-card" 
+                             data-name="{{ donation.food_item.name|lower }}" 
+                             data-category="{{ donation.food_item.category|lower }}"
+                             data-status="{{ donation.status|lower }}">
+                            <div class="card h-100 shadow-sm">
+                                <div class="card-header bg-primary text-white">
+                                    <h5 class="card-title mb-0">{{ donation.food_item.name }}</h5>
+                                    <small class="text-light">{{ donation.food_item.category|title }}</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <strong>Quantity:</strong> 
+                                        <span class="badge bg-info">{{ donation.quantity }} {{ donation.food_item.unit }}</span>
+                                    </div>
+                                    
+                                    {% if donation.description %}
+                                    <p class="card-text">
+                                        <strong>Description:</strong><br>
+                                        <small class="text-muted">{{ donation.description }}</small>
+                                    </p>
+                                    {% endif %}
+                                    
+                                    {% if donation.pickup_location %}
+                                    <p class="card-text">
+                                        <strong>Pickup Location:</strong><br>
+                                        <small class="text-muted">{{ donation.pickup_location }}</small>
+                                    </p>
+                                    {% endif %}
+
+                                    {% if donation.pickup_instructions %}
+                                    <p class="card-text">
+                                        <strong>Instructions:</strong><br>
+                                        <small class="text-muted">{{ donation.pickup_instructions }}</small>
+                                    </p>
+                                    {% endif %}
+                                    
+                                    <div class="mb-2">
+                                        <strong>Status:</strong> 
+                                        <span class="badge 
+                                            {% if donation.status == 'available' %}bg-success
+                                            {% elif donation.status == 'claimed' %}bg-warning
+                                            {% elif donation.status == 'delivered' %}bg-info
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ donation.status|title }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="card-footer bg-light">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <small class="text-muted d-block">
+                                                Donor: {{ donation.donor.username }}
+                                            </small>
+                                            <small class="text-muted">
+                                                {{ donation.created_at.strftime('%Y-%m-%d') }}
+                                            </small>
+                                        </div>
+                                        
+                                        {% if donation.status == 'available' and current_user.id != donation.donor.id %}
+                                            <form method="POST" action="{{ url_for('donations.claim_donation', donation_id=donation.id) }}">
+                                                <button type="submit" class="btn btn-success btn-sm">Claim</button>
+                                            </form>
+                                        {% elif donation.status == 'claimed' %}
+                                            <span class="text-warning small fw-bold">
+                                                Claimed
+                                                {% if donation.claimed_at %}
+                                                    on {{ donation.claimed_at.strftime('%m/%d') }}
+                                                {% endif %}
+                                            </span>
+                                        {% elif current_user.id == donation.donor.id %}
+                                            <span class="text-info small fw-bold">Your Donation</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if donations.has_prev or donations.has_next %}
+                    <nav aria-label="Donation pagination" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if donations.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('donations.list_donations', page=donations.prev_num) }}">
+                                    Previous
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in donations.iter_pages(left_edge=2, left_current=2, right_current=2, right_edge=2) %}
+                                {% if page_num %}
+                                    <li class="page-item {% if page_num == donations.page %}active{% endif %}">
+                                        <a class="page-link" href="{{ url_for('donations.list_donations', page=page_num) }}">
+                                            {{ page_num }}
+                                        </a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">...</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if donations.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('donations.list_donations', page=donations.next_num) }}">
+                                    Next
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="text-center py-5">
+                        <div class="alert alert-info">
+                            <h4>No donations available at the moment</h4>
+                            <p class="mb-3">There are currently no food donations available in your area.</p>
+                            <p>Check back later or consider being the first to donate food!</p>
+                            <a href="{{ url_for('donations.create_donation') }}" class="btn btn-success btn-lg">
+                                Create Donation
+                            </a>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Search and filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    const donationCards = document.querySelectorAll('.donation-card');
+
+    function filterDonations() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const categoryValue = categoryFilter.value.toLowerCase();
+        const statusValue = statusFilter.value.toLowerCase();
+
+        donationCards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            const category = card.getAttribute('data-category');
+            const status = card.getAttribute('data-status');
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesCategory = categoryValue === '' || category === categoryValue;
+            const matchesStatus = statusValue === '' || status === statusValue;
+            
+            if (matchesSearch && matchesCategory && matchesStatus) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    searchInput.addEventListener('input', filterDonations);
+    categoryFilter.addEventListener('change', filterDonations);
+    statusFilter.addEventListener('change', filterDonations);
+});
+</script>
+{% endblock %}

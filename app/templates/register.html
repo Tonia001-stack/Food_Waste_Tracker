@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Register - FoodSave{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-custom fade-in">
+            <div class="card-header bg-success text-white text-center">
+                <h4 class="mb-0">Create Your FoodSave Account</h4>
+                <small>Join the fight against food waste</small>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-bold">
+                            👤 Username
+                        </label>
+                        {{ form.username(class="form-control form-control-lg", placeholder="Choose a username") }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-bold">
+                            📧 Email Address
+                        </label>
+                        {{ form.email(class="form-control form-control-lg", placeholder="your@email.com") }}
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-bold">
+                            🔒 Password
+                        </label>
+                        {{ form.password(class="form-control form-control-lg", placeholder="Create a password") }}
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="mb-3">
+                        <label for="password2" class="form-label fw-bold">
+                            🔒 Confirm Password
+                        </label>
+                        {{ form.password2(class="form-control form-control-lg", placeholder="Repeat your password") }}
+                        {% if form.password2.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- User Type -->
+                    <div class="mb-3">
+                        <label for="user_type" class="form-label fw-bold">
+                            🏢 Account Type
+                        </label>
+                        {{ form.user_type(class="form-select form-select-lg") }}
+                        <div class="form-text">
+                            Choose how you'll use FoodSave:
+                            <strong>Individual</strong> (personal use), 
+                            <strong>Business</strong> (restaurant/store), 
+                            <strong>Charity</strong> (food bank/charity)
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="mb-4">
+                        <label for="location" class="form-label fw-bold">
+                            📍 Location
+                        </label>
+                        {{ form.location(class="form-control form-control-lg", placeholder="Your city or area") }}
+                        <div class="form-text">Helps with donation matching in your area</div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-success btn-lg py-3") }}
+                    </div>
+                </form>
+
+                <!-- Login Link -->
+                <div class="text-center mt-4">
+                    <p class="mb-0">Already have an account? 
+                        <a href="{{ url_for('auth.login') }}" class="text-success fw-bold">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Benefits Card -->
+        <div class="card mt-4 fade-in">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">🎁 Benefits of Joining FoodSave</h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">✅ <strong>Track food expiry dates</strong> automatically</li>
+                    <li class="mb-2">✅ <strong>Reduce food waste</strong> with smart alerts</li>
+                    <li class="mb-2">✅ <strong>Save money</strong> by using food before it expires</li>
+                    <li class="mb-2">✅ <strong>Help your community</strong> by donating surplus food</li>
+                    <li>✅ <strong>Environmental impact tracking</strong> to see your positive effect</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

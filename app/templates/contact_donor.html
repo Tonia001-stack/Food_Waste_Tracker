@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Donor - FoodSave{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <!-- Success Alert -->
+            <div class="alert alert-success">
+                <h4 class="alert-heading">Donation Claimed Successfully!</h4>
+                <p class="mb-0">You have claimed <strong>{{ donation.food_item.name }}</strong>. Now you can contact the donor to arrange pickup.</p>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Contact Donor</h4>
+                </div>
+                <div class="card-body">
+                    <!-- Donation Details -->
+                    <div class="mb-4 p-3 border rounded bg-light">
+                        <h5 class="border-bottom pb-2">Donation Details</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong>Food Item:</strong> {{ donation.food_item.name }}
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Quantity:</strong> {{ donation.quantity }}
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Category:</strong> 
+                                    <span class="badge bg-info">{{ donation.food_item.category|title }}</span>
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-2">
+                                    <strong>Donor:</strong> {{ donation.donor.username }}
+                                </p>
+                                <p class="mb-2">
+                                    <strong>Claimed:</strong> 
+                                    {% if donation.claimed_at %}
+                                        {{ donation.claimed_at.strftime('%Y-%m-%d at %H:%M') }}
+                                    {% else %}
+                                        Recently
+                                    {% endif %}
+                                </p>
+                                <p class="mb-0">
+                                    <strong>Status:</strong> 
+                                    <span class="badge bg-warning">Claimed</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contact Information -->
+                    <div class="contact-info mb-4 p-3 border rounded">
+                        <h5 class="border-bottom pb-2">Contact Information</h5>
+                        <div class="list-group">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Donor Username:</strong> 
+                                    <span class="ms-2">{{ donation.donor.username }}</span>
+                                </div>
+                                <span class="badge bg-primary">FoodSave User</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>Email Address:</strong>
+                                    <span class="ms-2 text-muted">{{ donation.donor.email }}</span>
+                                </div>
+                                <a href="mailto:{{ donation.donor.email }}?subject=FoodSave: Pickup for {{ donation.food_item.name }}&body=Hi {{ donation.donor.username }}! I claimed your {{ donation.food_item.name }} donation and would like to arrange pickup."
+                                   class="btn btn-outline-primary btn-sm">
+                                    Send Email
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pickup Information -->
+                    <div class="pickup-info mb-4 p-3 border rounded">
+                        <h5 class="border-bottom pb-2">Pickup Location</h5>
+                        <div class="alert alert-info mb-0">
+                            <strong>Where to pickup:</strong><br>
+                            <div class="mt-2 p-2 bg-white rounded">
+                                {{ donation.pickup_location }}
+                            </div>
+                            {% if donation.pickup_instructions %}
+                            <div class="mt-2">
+                                <strong>Additional Instructions:</strong><br>
+                                <div class="p-2 bg-white rounded mt-1">
+                                    {{ donation.pickup_instructions }}
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Message Form -->
+                    <div class="message-form p-3 border rounded">
+                        <h5 class="border-bottom pb-2">Send a Message</h5>
+                        <form method="POST" action="{{ url_for('donations.send_message', donation_id=donation.id) }}">
+                            <div class="mb-3">
+                                <label class="form-label">Your Message to {{ donation.donor.username }}:</label>
+                                <textarea class="form-control" name="message" rows="4" 
+                                          placeholder="Hi! I've claimed your {{ donation.food_item.name }} donation and would like to arrange pickup. When would be a good time for me to come by?">Hi {{ donation.donor.username }}! I've claimed your {{ donation.food_item.name }} donation and would like to arrange pickup. When would be a good time for me to come by?</textarea>
+                                <div class="form-text">
+                                    Tip: Be specific about your availability and confirm the pickup location.
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="mt-4 d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('donations.my_claims') }}" class="btn btn-secondary">
+                    Back to My Claims
+                </a>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('donations.list_donations') }}" class="btn btn-outline-primary">
+                        Browse More Donations
+                    </a>
+                    <a href="{{ url_for('food.dashboard') }}" class="btn btn-outline-success">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

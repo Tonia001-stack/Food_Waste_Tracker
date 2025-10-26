@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to FoodSave - Reduce Food Waste{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="jumbotron bg-light p-5 rounded text-center mb-5 fade-in">
+    <h1 class="display-4 fw-bold text-success mb-4">🍎 FoodSave</h1>
+    <p class="lead fs-4 mb-4">Track. Reduce. Donate. Transform Food Waste into Hope.</p>
+    <p class="mb-4">Join the movement to reduce food waste, save money, and help your community.</p>
+    
+    {% if not current_user.is_authenticated %}
+    <div class="mt-4">
+        <a class="btn btn-success btn-lg me-3 px-4 py-2" href="{{ url_for('auth.register') }}">
+            Get Started Free
+        </a>
+        <a class="btn btn-outline-success btn-lg px-4 py-2" href="{{ url_for('auth.login') }}">
+            Existing User? Login
+        </a>
+    </div>
+    {% else %}
+    <div class="mt-4">
+        <a class="btn btn-success btn-lg me-3 px-4 py-2" href="{{ url_for('food.dashboard') }}">
+            Go to Dashboard
+        </a>
+        <a class="btn btn-outline-success btn-lg px-4 py-2" href="{{ url_for('food.add_food') }}">
+            Add Food Item
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Features Section -->
+<div class="row mt-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center shadow-custom">
+            <div class="card-body p-4">
+                <div class="feature-icon mb-3">📊</div>
+                <h4 class="card-title">Smart Tracking</h4>
+                <p class="card-text">
+                    Monitor your food inventory with expiry alerts and smart notifications. 
+                    Never waste food because you forgot about it again.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center shadow-custom">
+            <div class="card-body p-4">
+                <div class="feature-icon mb-3">🌱</div>
+                <h4 class="card-title">Reduce Waste</h4>
+                <p class="card-text">
+                    Get detailed analytics on your consumption patterns. 
+                    Understand where waste happens and make informed decisions.
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 text-center shadow-custom">
+            <div class="card-body p-4">
+                <div class="feature-icon mb-3">❤️</div>
+                <h4 class="card-title">Help Community</h4>
+                <p class="card-text">
+                    Donate surplus food directly to people in need. 
+                    Connect with local charities and make a real difference.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Impact Statistics -->
+<div class="row mt-5 bg-success-custom text-white rounded p-4">
+    <div class="col-md-3 text-center">
+        <h3 class="fw-bold">30%</h3>
+        <p>of all food produced is wasted globally</p>
+    </div>
+    <div class="col-md-3 text-center">
+        <h3 class="fw-bold">8%</h3>
+        <p>of greenhouse gases from food waste</p>
+    </div>
+    <div class="col-md-3 text-center">
+        <h3 class="fw-bold">1.3B</h3>
+        <p>tons of food wasted annually</p>
+    </div>
+    <div class="col-md-3 text-center">
+        <h3 class="fw-bold">$1T</h3>
+        <p>economic cost of food waste</p>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="text-center mt-5 p-4 bg-light rounded">
+    <h3>Ready to Make a Difference?</h3>
+    <p class="mb-4">Join thousands of users already reducing their food waste footprint.</p>
+    {% if not current_user.is_authenticated %}
+    <a href="{{ url_for('auth.register') }}" class="btn btn-success btn-lg px-5">
+        Start Your Journey Today
+    </a>
+    {% endif %}
+</div>
+{% endblock %}

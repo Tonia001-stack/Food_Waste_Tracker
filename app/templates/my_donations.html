@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}My Donations - FoodSave{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Donations</h2>
+    <a href="{{ url_for('donations.create_donation') }}" class="btn btn-success">
+        Create New Donation
+    </a>
+</div>
+
+<!-- Donations List -->
+<div class="mb-4">
+    <h3>Your Donations</h3>
+    
+    {% for donation in donations %}
+    <div class="card mb-4 {% if donation.status == 'claimed' %}border-warning bg-light{% elif donation.status == 'available' %}border-success{% else %}border-info{% endif %}">
+        <div class="card-header {% if donation.status == 'claimed' %}bg-warning{% elif donation.status == 'available' %}bg-success text-white{% else %}bg-info text-white{% endif %}">
+            <h5 class="card-title mb-0">
+                {{ donation.food_item.name }} 
+                <span class="badge {% if donation.status == 'claimed' %}bg-danger{% elif donation.status == 'available' %}bg-primary{% else %}bg-success{% endif %}">
+                    {{ donation.status|upper }}
+                </span>
+            </h5>
+            <small>{{ donation.food_item.category|title }}</small>
+        </div>
+        <div class="card-body">
+            <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+            <p><strong>Donor:</strong> {{ donation.donor.username }}</p>
+            {% if donation.claimant %}
+            <p><strong>Claimed by:</strong> {{ donation.claimant.username }}</p>
+            {% endif %}
+            <p><strong>Pickup Location:</strong> {{ donation.pickup_location }}</p>
+            
+            <!-- MARK AS DELIVERED BUTTON - ONLY FOR CLAIMED DONATIONS -->
+            {% if donation.status == 'claimed' and donation.donor_id == current_user.id %}
+            <div class="mt-3 p-3 bg-light border-warning rounded">
+                <h5 class="text-warning">📦 Ready for Delivery</h5>
+                <p class="mb-2">This donation has been claimed and is ready to be delivered to the recipient.</p>
+                <form action="{{ url_for('donations.complete_donation', donation_id=donation.id) }}" method="post">
+                    <button type="submit" class="btn btn-success">
+                        ✅ Mark as Delivered
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+            
+            <!-- CANCEL BUTTON - ONLY FOR AVAILABLE DONATIONS -->
+            {% if donation.status == 'available' %}
+            <form action="{{ url_for('donations.cancel_donation', donation_id=donation.id) }}" method="post" class="mt-2">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    Cancel Donation
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        <h5>No Donations Found</h5>
+        <p>You haven't created any donations yet. Start by creating your first donation!</p>
+        <a href="{{ url_for('donations.create_donation') }}" class="btn btn-primary">Create Your First Donation</a>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Donation Statistics -->
+<div class="card mt-5">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">My Donation Impact</h5>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3 mb-3">
+                <div class="p-3 border rounded bg-light">
+                    <h4 class="text-primary mb-1">{{ donations|length }}</h4>
+                    <small class="text-muted">Total Donations</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 border rounded bg-light">
+                    <h4 class="text-warning mb-1">{{ donations|selectattr('status', 'equalto', 'claimed')|list|length }}</h4>
+                    <small class="text-muted">Currently Claimed</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 border rounded bg-light">
+                    <h4 class="text-info mb-1">{{ donations|selectattr('status', 'equalto', 'completed')|list|length }}</h4>
+                    <small class="text-muted">Successfully Delivered</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 border rounded bg-light">
+                    <h4 class="text-success mb-1">{{ (donations|length * 3)|default(0) }}+</h4>
+                    <small class="text-muted">Meals Provided</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

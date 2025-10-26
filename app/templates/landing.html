@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}FoodSave - Reduce Food Waste{% endblock %}
+
+{% block content %}
+<!-- Hero Section with Background Image -->
+<div class="hero-bg text-white py-5">
+    <div class="container text-center py-5 hero-content">
+        <h1 class="display-4 fw-bold hero-title">🍎 Fight Food Waste, Feed Communities</h1>
+        <p class="lead fs-4 hero-subtitle">Join the movement to reduce food waste and help those in need</p>
+        {% if not current_user.is_authenticated %}
+        <div class="mt-4">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg me-3 shadow">Join Now</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg shadow">Sign In</a>
+        </div>
+        {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('food.dashboard') }}" class="btn btn-light btn-lg me-3 shadow">Go to Dashboard</a>
+            <a href="{{ url_for('donations.list_donations') }}" class="btn btn-outline-light btn-lg shadow">Browse Donations</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Impact Statistics -->
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2>🥗</h2>
+                    <h3 class="text-success" id="meals-saved">1,000+</h3>
+                    <p>Meals Saved From Waste</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2>🌱</h2>
+                    <h3 class="text-success" id="co2-reduced">500+</h3>
+                    <p>kg CO₂ Emissions Reduced</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h2>💧</h2>
+                    <h3 class="text-success" id="water-saved">200K+</h3>
+                    <p>Liters of Water Saved</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="bg-light py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">How FoodSave Works</h2>
+        <div class="row">
+            <div class="col-md-4 text-center mb-4">
+                <div class="mb-3">
+                    <span class="display-4">📱</span>
+                </div>
+                <h4>Track Your Food</h4>
+                <p>Add food items to your inventory and get expiry alerts</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="mb-3">
+                    <span class="display-4">❤️</span>
+                </div>
+                <h4>Donate Surplus</h4>
+                <p>Share food that you can't consume with your community</p>
+            </div>
+            <div class="col-md-4 text-center mb-4">
+                <div class="mb-3">
+                    <span class="display-4">🌍</span>
+                </div>
+                <h4>Make an Impact</h4>
+                <p>Reduce waste, save money, and help the environment</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

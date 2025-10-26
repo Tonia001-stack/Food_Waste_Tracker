@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FoodSave{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Main Content Column -->
+    <div class="col-md-8">
+        <!-- Welcome Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Welcome back, {{ current_user.username }}! 👋</h2>
+            <span class="badge bg-success fs-6">
+                {% if current_user.user_type == 'business' %}
+                    Business
+                {% elif current_user.user_type == 'charity' %}
+                    Charity
+                {% else %}
+                    Individual
+                {% endif %} Account
+            </span>
+        </div>
+
+        <!-- Expiry Timeline - ADDED THIS SECTION -->
+        {% if expiring_soon %}
+        <div class="card mb-4 fade-in">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">⏰ Expiry Timeline</h5>
+            </div>
+            <div class="card-body">
+                <div class="expiry-timeline">
+                    {% for item in expiring_soon %}
+                    <div class="timeline-item mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-bold">{{ item.name }}</span>
+                            <span class="badge {% if item.days_until_expiry() <= 1 %}bg-danger
+                                          {% elif item.days_until_expiry() <= 3 %}bg-warning
+                                          {% else %}bg-success{% endif %}">
+                                {{ item.days_until_expiry() }} day{% if item.days_until_expiry() != 1 %}s{% endif %}
+                            </span>
+                        </div>
+                        <div class="progress mt-1" style="height: 8px;">
+                            <div class="progress-bar {% if item.days_until_expiry() <= 1 %}bg-danger
+                                              {% elif item.days_until_expiry() <= 3 %}bg-warning
+                                              {% else %}bg-success{% endif %}" 
+                                 style="width: {{ [(item.days_until_expiry() / 7) * 100, 100]|min }}%">
+                            </div>
+                        </div>
+                        <small class="text-muted">{{ item.category.value }} • {{ item.quantity }}</small>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Expiring Soon Alert Section -->
+        {% if expiring_soon %}
+        <div class="alert alert-warning fade-in">
+            <div class="d-flex align-items-center">
+                <span class="fs-4 me-3">⚠️</span>
+                <div>
+                    <h5 class="alert-heading mb-1">Items Expiring Soon</h5>
+                    <p class="mb-0">The following items will expire in the next 3 days. Consider consuming or donating them.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Food Items Grid -->
+        <div class="row" id="food-items">
+            {% for item in expiring_soon %}
+            <div class="col-md-6 mb-3">
+                <div class="card border-warning food-item-card status-expiring fade-in">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0">{{ item.name }}</h5>
+                            <span class="badge bg-warning text-dark">Expiring</span>
+                        </div>
+                        
+                        <p class="card-text">
+                            <strong>Category:</strong> 
+                            <span class="badge bg-secondary">{{ item.category.value }}</span><br>
+                            <strong>Quantity:</strong> {{ item.quantity }}<br>
+                            <strong>Expires in:</strong> 
+                            <span class="expiry-warning fw-bold" data-days="{{ item.days_until_expiry() }}">
+                                {{ item.days_until_expiry() }} days
+                            </span>
+                        </p>
+                        
+                        <!-- Action Buttons -->
+                        <div class="btn-group w-100" role="group">
+                            <button class="btn btn-success btn-sm mark-consumed" data-id="{{ item.id }}">
+                                ✅ Consumed
+                            </button>
+                            <button class="btn btn-danger btn-sm mark-wasted" data-id="{{ item.id }}">
+                                🗑️ Wasted
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- No Expiring Items Message -->
+        <div class="alert alert-success fade-in">
+            <div class="d-flex align-items-center">
+                <span class="fs-4 me-3">🎉</span>
+                <div>
+                    <h5 class="alert-heading mb-1">Great Job!</h5>
+                    <p class="mb-0">No items expiring soon. You're doing an excellent job managing your food inventory!</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Quick Actions Card -->
+        <div class="card mt-4 fade-in">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">🚀 Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('food.add_food') }}" class="btn btn-outline-primary w-100 h-100 py-3">
+                            <div class="fs-1">➕</div>
+                            <div>Add Food Item</div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('donations.list_donations') }}" class="btn btn-outline-success w-100 h-100 py-3">
+                            <div class="fs-1">❤️</div>
+                            <div>View Donations</div>
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="{{ url_for('analytics.dashboard') }}" class="btn btn-outline-info w-100 h-100 py-3">
+                            <div class="fs-1">📈</div>
+                            <div>View Analytics</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar Column -->
+    <div class="col-md-4">
+        <!-- Waste Statistics Card -->
+        <div class="card shadow-custom fade-in">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">📊 Your Waste Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="stats-grid">
+                    <div class="stats-item text-center p-3">
+                        <div class="stats-number text-primary">{{ stats.total_items }}</div>
+                        <div class="stats-label">Total Items Tracked</div>
+                    </div>
+                    <div class="stats-item text-center p-3">
+                        <div class="stats-number text-success">{{ stats.consumed }}</div>
+                        <div class="stats-label">Consumed</div>
+                    </div>
+                    <div class="stats-item text-center p-3">
+                        <div class="stats-number text-danger">{{ stats.wasted }}</div>
+                        <div class="stats-label">Wasted</div>
+                    </div>
+                    <div class="stats-item text-center p-3">
+                        <div class="stats-number {% if stats.waste_percentage > 20 %}text-danger{% else %}text-success{% endif %}">
+                            {{ stats.waste_percentage }}%
+                        </div>
+                        <div class="stats-label">Waste Rate</div>
+                    </div>
+                </div>
+                
+                <!-- Progress Bar -->
+                <div class="mt-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Consumption Rate</small>
+                        <small>{{ (100 - stats.waste_percentage)|round(1) }}%</small>
+                    </div>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             aria-valuenow="{{ (100 - stats.waste_percentage)|round(1) }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ (100 - stats.waste_percentage)|round(1) }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Impact Card -->
+        <div class="card mt-4 shadow-custom fade-in">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">🌍 Environmental Impact</h5>
+            </div>
+            <div class="card-body">
+                <div class="impact-item text-center mb-3 p-2">
+                    <div class="impact-number text-success">
+                        {% if stats.wasted > 0 %}
+                            {{ (stats.wasted * 0.5 * 2.5)|round(1) }}
+                        {% else %}
+                            0
+                        {% endif %} kg
+                    </div>
+                    <div class="impact-label">CO₂ Emissions Prevented</div>
+                </div>
+                <div class="impact-item text-center mb-3 p-2">
+                    <div class="impact-number text-primary">
+                        {% if stats.wasted > 0 %}
+                            {{ (stats.wasted * 0.5 * 1000)|round(0) }}
+                        {% else %}
+                            0
+                        {% endif %} L
+                    </div>
+                    <div class="impact-label">Water Saved</div>
+                </div>
+                <div class="impact-item text-center p-2">
+                    <div class="impact-number text-warning">
+                        {% if stats.wasted > 0 %}
+                            {{ (stats.wasted * 0.5 * 3)|round(0) }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="impact-label">Potential Meals Saved</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity Card -->
+        <div class="card mt-4 shadow-custom fade-in">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">📝 Recent Activity</h5>
+            </div>
+            <div class="card-body">
+                <div class="activity-list">
+                    <div class="activity-item d-flex align-items-center mb-2">
+                        <span class="badge bg-success me-2">✓</span>
+                        <small>Food inventory tracked</small>
+                    </div>
+                    <div class="activity-item d-flex align-items-center mb-2">
+                        <span class="badge bg-warning me-2">!</span>
+                        <small>{{ expiring_soon|length }} items need attention</small>
+                    </div>
+                    <div class="activity-item d-flex align-items-center">
+                        <span class="badge bg-info me-2">🌱</span>
+                        <small>Reducing food waste footprint</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Search Bar -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <input type="text" class="form-control" id="searchInput" placeholder="🔍 Search food items...">
+    </div>
+    <div class="col-md-6">
+        <select class="form-select" id="categoryFilter">
+            <option value="">All Categories</option>
+            <option value="Fruits">Fruits</option>
+            <option value="Vegetables">Vegetables</option>
+            <!-- Add other categories -->
+        </select>
+    </div>
+</div>
+{% endblock %}

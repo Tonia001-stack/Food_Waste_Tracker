@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Login - FoodSave{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-custom fade-in">
+            <div class="card-header bg-primary text-white text-center">
+                <h4 class="mb-0">Welcome Back to FoodSave</h4>
+                <small>Continue your food waste reduction journey</small>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- Username -->
+                    <div class="mb-3">
+                        <label for="username" class="form-label fw-bold">
+                            👤 Username
+                        </label>
+                        {{ form.username(class="form-control form-control-lg", placeholder="Enter your username") }}
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Password -->
+                    <div class="mb-3">
+                        <label for="password" class="form-label fw-bold">
+                            🔒 Password
+                        </label>
+                        {{ form.password(class="form-control form-control-lg", placeholder="Enter your password") }}
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="mb-3 form-check">
+                        {{ form.remember_me(class="form-check-input") }}
+                        <label class="form-check-label" for="remember_me">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg py-3") }}
+                    </div>
+                </form>
+
+                <!-- Register Link -->
+                <div class="text-center mt-4">
+                    <p class="mb-0">Don't have an account? 
+                        <a href="{{ url_for('auth.register') }}" class="text-primary fw-bold">Sign up for free</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Accounts Card -->
+        <div class="card mt-4 fade-in">
+            <div class="card-header bg-light">
+                <h6 class="mb-0">💡 Quick Demo Access</h6>
+            </div>
+            <div class="card-body">
+                <p class="small text-muted mb-2">
+                    For testing purposes, you can register a new account with any credentials.
+                    The app doesn't require email verification for demo.
+                </p>
+                <div class="bg-light p-3 rounded">
+                    <strong>Test Account Suggestion:</strong><br>
+                    Username: <code>demo_user</code><br>
+                    Email: <code>demo@example.com</code><br>
+                    Password: <code>password123</code>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

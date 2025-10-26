@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard - FoodSave{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h1>Analytics Dashboard</h1>
+        
+        <!-- Summary Statistics -->
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-primary">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Total Items</h5>
+                        <h3>{{ stats.total_items }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Consumed</h5>
+                        <h3>{{ stats.consumed_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Wasted</h5>
+                        <h3>{{ stats.wasted_count }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Donated</h5>
+                        <h3>{{ stats.donated_count }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Personal Impact Cards -->
+        <div class="row mt-4">
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">💰 Money Saved</h5>
+                        <h3>${{ (stats.total_items * 5)|round(0) }}</h3>
+                        <small>Estimated value of food saved</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card text-white bg-warning">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">🤝 Community Impact</h5>
+                        <h3>{{ stats.donated_count * 3 }}+</h3>
+                        <small>Meals provided to community</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Food Status Overview -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Food Status Overview</h5>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Fresh:</strong> {{ stats.fresh_count }} items</p>
+                        <p><strong>Expiring Soon:</strong> {{ stats.expiring_soon_count }} items</p>
+                        <p><strong>Expired:</strong> {{ stats.expired_count }} items</p>
+                        <p><strong>Consumed:</strong> {{ stats.consumed_count }} items</p>
+                        <p><strong>Wasted:</strong> {{ stats.wasted_count }} items</p>
+                        <p><strong>Donated:</strong> {{ stats.donated_count }} items</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Waste Rate Analysis</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h3 class="{% if stats.waste_percentage > 20 %}text-danger{% else %}text-success{% endif %}">
+                            {{ stats.waste_percentage }}%
+                        </h3>
+                        <p class="text-muted">of your food was wasted</p>
+                        
+                        <div class="progress mb-3" style="height: 30px;">
+                            <div class="progress-bar bg-success" style="width: {{ 100 - stats.waste_percentage }}%">
+                                {{ 100 - stats.waste_percentage }}% Consumed
+                            </div>
+                            <div class="progress-bar bg-danger" style="width: {{ stats.waste_percentage }}%">
+                                {{ stats.waste_percentage }}% Wasted
+                            </div>
+                        </div>
+
+                        {% if stats.waste_percentage > 20 %}
+                            <div class="alert alert-warning">
+                                <small>Consider meal planning to reduce waste</small>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <small>Great job minimizing food waste!</small>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Environmental Impact -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">Environmental Impact</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <div class="p-3">
+                                    <h4 class="text-success">{{ environmental_impact.co2_saved }} kg</h4>
+                                    <p class="text-muted">CO₂ Emissions Prevented</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="p-3">
+                                    <h4 class="text-primary">{{ environmental_impact.water_saved }} L</h4>
+                                    <p class="text-muted">Water Saved</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="p-3">
+                                    <h4 class="text-warning">{{ environmental_impact.meals_saved }}</h4>
+                                    <p class="text-muted">Potential Meals Saved</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No Data Message -->
+        {% if stats.total_items == 0 %}
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="alert alert-info text-center">
+                    <h4>No Food Items Tracked Yet</h4>
+                    <p>Start tracking your food inventory to see analytics here.</p>
+                    <a href="{{ url_for('food.add_food') }}" class="btn btn-primary">
+                        Add Your First Food Item
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

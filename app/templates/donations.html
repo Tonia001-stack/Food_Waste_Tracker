@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Available Donations - FoodSave{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Available Food Donations</h2>
+    <div>
+        <a href="{{ url_for('donations.my_donations') }}" class="btn btn-outline-primary me-2">
+            My Donations
+        </a>
+        <a href="{{ url_for('donations.create_donation') }}" class="btn btn-success">
+            Create Donation
+        </a>
+    </div>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <input type="text" class="form-control" id="donation-search" 
+                       placeholder="Search donations by food name, description, or location...">
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="category-filter">
+                    <option value="">All Categories</option>
+                    <option value="fruits">Fruits</option>
+                    <option value="vegetables">Vegetables</option>
+                    <option value="dairy">Dairy</option>
+                    <option value="meat">Meat</option>
+                    <option value="grains">Grains</option>
+                    <option value="beverages">Beverages</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="status-filter">
+                    <option value="">All Status</option>
+                    <option value="available">Available</option>
+                    <option value="claimed">Claimed</option>
+                    <option value="delivered">Delivered</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Donations Grid -->
+<div class="row" id="donations-list">
+    {% for donation in donations.items %}
+    <div class="col-lg-6 mb-4 donation-item">
+        <div class="card h-100 shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">{{ donation.food_item.name }}</h5>
+                <small>{{ donation.food_item.category|title }}</small>
+            </div>
+            <div class="card-body">
+                <!-- Donation Details -->
+                <div class="donation-details">
+                    <p class="card-text mb-2">
+                        <strong>Quantity:</strong> 
+                        <span class="badge bg-info">{{ donation.quantity }} {{ donation.food_item.unit }}</span>
+                    </p>
+                    
+                    {% if donation.description %}
+                    <p class="card-text mb-2">
+                        <strong>Description:</strong><br>
+                        <small class="text-muted">{{ donation.description }}</small>
+                    </p>
+                    {% endif %}
+                    
+                    <p class="card-text mb-2">
+                        <strong>Pickup Location:</strong><br>
+                        <small class="text-muted">{{ donation.pickup_location }}</small>
+                    </p>
+                    
+                    {% if donation.pickup_instructions %}
+                    <p class="card-text mb-2">
+                        <strong>Instructions:</strong><br>
+                        <small class="text-muted">{{ donation.pickup_instructions }}</small>
+                    </p>
+                    {% endif %}
+                    
+                    <p class="card-text mb-2">
+                        <strong>Donor:</strong> {{ donation.donor_user.username }}
+                    </p>
+                    
+                    <p class="card-text mb-0">
+                        <strong>Posted:</strong> 
+                        <small class="text-muted">{{ donation.created_at.strftime('%Y-%m-%d at %H:%M') }}</small>
+                    </p>
+                </div>
+                
+                <!-- Status Badge -->
+                <div class="mt-3">
+                    <strong>Status:</strong> 
+                    <span class="badge 
+                        {% if donation.status == 'available' %}bg-success
+                        {% elif donation.status == 'claimed' %}bg-warning
+                        {% elif donation.status == 'delivered' %}bg-info
+                        {% else %}bg-secondary{% endif %}">
+                        {{ donation.status|title }}
+                    </span>
+                </div>
+                
+                <!-- Action Buttons -->
+                {% if donation.donor_user.id != current_user.id %}
+                    {% if donation.status == 'available' %}
+                    <form action="{{ url_for('donations.claim_donation', donation_id=donation.id) }}" method="post" class="mt-3">
+                        <button type="submit" class="btn btn-success w-100 claim-donation" data-id="{{ donation.id }}">
+                            Claim This Donation
+                        </button>
+                    </form>
+                    {% elif donation.status == 'claimed' %}
+                    <button class="btn btn-outline-warning w-100 mt-3" disabled>
+                        Already Claimed
+                    </button>
+                    {% else %}
+                    <button class="btn btn-outline-secondary w-100 mt-3" disabled>
+                        Delivered
+                    </button>
+                    {% endif %}
+                {% else %}
+                <button class="btn btn-outline-secondary w-100 mt-3" disabled>
+                    Your Donation
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- No Donations Message -->
+    <div class="col-12">
+        <div class="card text-center py-5">
+            <div class="card-body">
+                <h4>No Donations Available</h4>
+                <p class="text-muted mb-4">
+                    There are currently no food donations available. 
+                    Check back later or create your own donation!
+                </p>
+                <a href="{{ url_for('donations.create_donation') }}" class="btn btn-success btn-lg">
+                    Be the First to Donate
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if donations.has_prev or donations.has_next %}
+<nav aria-label="Donation pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if donations.has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('donations.list_donations', page=donations.prev_num) }}">
+                Previous
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for page_num in donations.iter_pages(left_edge=2, left_current=2, right_current=2, right_edge=2) %}
+            {% if page_num %}
+                <li class="page-item {% if page_num == donations.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('donations.list_donations', page=page_num) }}">
+                        {{ page_num }}
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+        
+        {% if donations.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('donations.list_donations', page=donations.next_num) }}">
+                Next
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Statistics Card -->
+<div class="card mt-5">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Donation Impact</h5>
+    </div>
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3 mb-3">
+                <div class="p-3 border rounded bg-light">
+                    <h4 class="text-success mb-1">{{ total_donations|default(0) }}</h4>
+                    <small class="text-muted">Total Donations</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 border rounded bg-light">
+                    <h4 class="text-warning mb-1">{{ claimed_donations|default(0) }}</h4>
+                    <small class="text-muted">Currently Claimed</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 border rounded bg-light">
+                    <h4 class="text-primary mb-1">{{ delivered_donations|default(0) }}</h4>
+                    <small class="text-muted">Successfully Delivered</small>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="p-3 border rounded bg-light">
+                    <h4 class="text-success mb-1">{{ estimated_meals|default(0) }}+</h4>
+                    <small class="text-muted">Meals Provided</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
