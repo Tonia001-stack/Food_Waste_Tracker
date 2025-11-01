@@ -65,7 +65,8 @@ def create_database():
             print("\n💡 Troubleshooting tips:")
             print("   1. Check your DATABASE_URL in .env")
             print("   2. Verify database credentials")
-            print("   3. Ensure psycopg2-binary is installed")
+            print("   3. Ensure psycopg and psycopg-binary are installed")
+
             print("   4. Check internet connection (for remote DB)")
             
             import traceback

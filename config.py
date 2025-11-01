@@ -269,7 +269,8 @@ class TestingConfig(Config):
     
     # Use in-memory SQLite for fast, isolated tests
     # Each test run gets a fresh database that's destroyed after tests
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    SQLALCHEMY_DATABASE_URI = <HIDDEN>
+
     
     # Disable CSRF protection for easier form testing
     # Note: In real tests, you should test CSRF protection separately
